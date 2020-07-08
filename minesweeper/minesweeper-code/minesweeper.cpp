@@ -27,8 +27,6 @@
 	Please enjoy :)
 */
 
-
-
 #include <iostream>
 #include <string>
 #include <time.h>
@@ -131,7 +129,7 @@ protected:
 				tiles[y * nMapWidth + x].bIsMine = false;
 				tiles[y * nMapWidth + x].bFlagged = false;
 ;			}
-
+		srand(time(NULL));
 		placeMines(tiles, nMapWidth * nMapHeight);
 
 		for (int x = 0; x < nMapWidth; x++)
@@ -147,8 +145,8 @@ protected:
 
 	void placeMines(sTile tiles[], int size)
 	{
-		int x = 3; //rand() % nMapWidth;
-		int y = 3; //rand() % nMapHeight;
+		int x = rand() % nMapWidth;
+		int y = rand() % nMapHeight;
 		int mineCounter = 0;
 
 		while (mineCounter < nMines)
@@ -164,7 +162,6 @@ protected:
 			x = rand() % nMapWidth;
 			y = rand() % nMapHeight;
 		}
-
 		return;
 	}
 
@@ -175,7 +172,7 @@ protected:
 		int neighbor_count = 0;
 
 		// Top side check
-		if (ypos - 1 > 0)
+		if (ypos - 1 >= 0)
 			if (tiles[(ypos - 1) * nMapWidth + xpos].bIsMine)
 				neighbor_count++;
 		// Right side check
@@ -187,19 +184,19 @@ protected:
 			if (tiles[(ypos + 1) * nMapWidth + xpos].bIsMine)
 				neighbor_count++;
 		// Left side check
-		if (xpos - 1 > 0)
+		if (xpos - 1 >= 0)
 			if (tiles[ypos * nMapWidth + (xpos - 1)].bIsMine)
 				neighbor_count++;
 		// Top left corner check
-		if (ypos - 1 > 0 && xpos - 1 > 0)
+		if (ypos - 1 >= 0 && xpos - 1 >= 0)
 			if (tiles[(ypos - 1) * nMapWidth + (xpos - 1)].bIsMine)
 				neighbor_count++;
 		// Top right corner check
-		if (ypos - 1 > 0 && xpos + 1 < nMapWidth)
+		if (ypos - 1 >= 0 && xpos + 1 < nMapWidth)
 			if (tiles[(ypos - 1) * nMapWidth + (xpos + 1)].bIsMine)
 				neighbor_count++;
 		// Bottom left corner check
-		if (ypos + 1 < nMapHeight && xpos - 1 > 0)
+		if (ypos + 1 < nMapHeight && xpos - 1 >= 0)
 			if (tiles[(ypos + 1) * nMapWidth + (xpos - 1)].bIsMine)
 				neighbor_count++;
 		// Bottom right corner check
@@ -221,38 +218,38 @@ protected:
 			tile[ypos * nMapWidth + xpos].bRevealed = true;
 
 			// Top side check
-			if (ypos - 1 > 0)
-			{
+			if (ypos - 1 >= 0)
 				openNeighbors(tile, xpos, ypos - 1);
-			}
 			// Right side check
 			if (xpos + 1 < nMapWidth)
-			{
 				openNeighbors(tile, xpos + 1, ypos);
-			}
 			// Bottom side check
 			if (ypos + 1 < nMapHeight)
-			{
 				openNeighbors(tile, xpos, ypos + 1);
-			}
 			// Left side check
-			if (xpos - 1 > 0)
-			{
+			if (xpos - 1 >= 0)
 				openNeighbors(tile, xpos - 1, ypos);
-			}
 
 			// Top left corner check
-			if (ypos - 1 > 0 && xpos - 1 > 0)
-				tile[(ypos - 1) * nMapWidth + (xpos - 1)].bRevealed = true;
+			if (ypos - 1 >= 0 && xpos - 1 >= 0)
+				openNeighbors(tile, xpos - 1, ypos - 1);
+				//tile[(ypos - 1) * nMapWidth + (xpos - 1)].bRevealed = true;
 			// Top right corner check
-			if (ypos - 1 > 0 && xpos + 1 < nMapWidth)
-				tile[(ypos - 1) * nMapWidth + (xpos + 1)].bRevealed = true;
+			if (ypos - 1 >= 0 && xpos + 1 < nMapWidth)
+				openNeighbors(tile, xpos + 1, ypos - 1);
+				//tile[(ypos - 1) * nMapWidth + (xpos + 1)].bRevealed = true;
 			// Bottom left corner check
-			if (ypos + 1 < nMapHeight && xpos - 1 > 0)
-				tile[(ypos + 1) * nMapWidth + (xpos - 1)].bRevealed = true;
+			if (ypos + 1 < nMapHeight && xpos - 1 >= 0)
+				openNeighbors(tile, xpos - 1, ypos + 1);
+				//tile[(ypos + 1) * nMapWidth + (xpos - 1)].bRevealed = true;
 			// Bottom right corner check
 			if (ypos + 1 < nMapHeight && xpos + 1 < nMapWidth)
-				tile[(ypos + 1) * nMapWidth + (xpos + 1)].bRevealed = true;
+				openNeighbors(tile, xpos + 1, ypos + 1);
+				//tile[(ypos + 1) * nMapWidth + (xpos + 1)].bRevealed = true;
+		}
+		else
+		{
+			tile[ypos * nMapWidth + xpos].bRevealed = true;
 		}
 	}
 
@@ -369,7 +366,6 @@ protected:
 					(nSelectedTileX + 1) * nTileSize - nTileBorder, (nSelectedTileY + 1) * nTileSize - nTileBorder,
 					PIXEL_THREEQUARTERS, FG_WHITE);
 			}
-
 		return true;
 	}
 };
@@ -378,9 +374,7 @@ int main()
 {
 	srand(time(NULL));
 	minesweeper_clone game;
-	//game.ConstructConsole(128, 80, 12, 12);
 	game.ConstructConsole(256,160, 5, 5);
 	game.Start();
-
 	return 0;
 }
