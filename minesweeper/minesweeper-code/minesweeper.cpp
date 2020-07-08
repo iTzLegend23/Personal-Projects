@@ -50,6 +50,7 @@ private:
 		bool bRevealed = false;		// Has the player revealed this tile?
 		bool bIsMine = false;		// Is this tile a mine or not?
 		bool bFlagged = false;		// Has the tile been flagged as a mine?
+		bool bDetonated = false;	// This will be true only for the mine that ends the game
 		int xPosition{ 0 };			// Tile's position in 2D map/grid
 		int yPosition{ 0 };
 		int mineNeighbors{ 0 };		// Number of mines as neighbors that the tile has adjacent to it
@@ -128,6 +129,7 @@ protected:
 				tiles[y * nMapWidth + x].bRevealed = false;
 				tiles[y * nMapWidth + x].bIsMine = false;
 				tiles[y * nMapWidth + x].bFlagged = false;
+				tiles[y * nMapWidth + x].bDetonated = false;
 ;			}
 		srand(time(NULL));
 		placeMines(tiles, nMapWidth * nMapHeight);
@@ -253,6 +255,14 @@ protected:
 		}
 	}
 
+	void gameOver(int nTileSize)
+	{
+		for (int x = 0; x < nMapWidth; x++)
+			for (int y = 0; y < nMapHeight; y++)
+				if (tiles[y * nMapWidth + x].bIsMine)
+					tiles[y * nMapWidth + x].bRevealed = true;
+	}
+
 	virtual bool OnUserUpdate(float fElapsedTime)
 	{
 		int nTileSize = 8;			// Tiles are 7 pixel sizes big, using 8 to give a nice black finish
@@ -303,7 +313,10 @@ protected:
 						if (tiles[nSelectedTileY * nMapWidth + nSelectedTileX].mineNeighbors != 0)
 							tiles[nSelectedTileY * nMapWidth + nSelectedTileX].bRevealed = true;
 						else if (tiles[nSelectedTileY * nMapWidth + nSelectedTileX].bIsMine)
+						{
 							tiles[nSelectedTileY * nMapWidth + nSelectedTileX].bRevealed = true;
+							tiles[nSelectedTileY * nMapWidth + nSelectedTileX].bDetonated = true;
+						}
 						else
 							openNeighbors(tiles, nSelectedTileX, nSelectedTileY);
 					}
@@ -321,7 +334,13 @@ protected:
 				if (tiles[y * nMapWidth + x].bRevealed)
 				{
 					if (tiles[y * nMapWidth + x].bIsMine)	// Right here, might want another helper function to handle game over case -- player selected a mine, gg
-						DrawSprite(x * nTileSize, y * nTileSize, spriteTrippedMine);
+					{
+						gameOver(nTileSize);
+						if (tiles[y * nMapWidth + x].bDetonated)
+							DrawSprite(x * nTileSize, y * nTileSize, spriteTrippedMine);
+						else
+							DrawSprite(x * nTileSize, y * nTileSize, spriteMine);
+					}
 					else if (tiles[y * nMapWidth + x].mineNeighbors == 0)
 						DrawSprite(x * nTileSize, y * nTileSize, spriteRevealedTile);
 					else if (tiles[y * nMapWidth + x].mineNeighbors == 1)
@@ -358,7 +377,7 @@ protected:
 				}
 			}
 
-		// Add a highlight feature for current tile the mouse is hovering over
+		// A highlight feature for current tile the mouse is hovering over
 		if (m_mousePosX / nTileSize == nSelectedTileX && nSelectedTileX >= 0 && nSelectedTileX < nMapWidth)
 			if (m_mousePosY / nTileSize == nSelectedTileY && nSelectedTileY > nMapHeight / adjuster && nSelectedTileY < nMapHeight)
 			{
@@ -372,7 +391,6 @@ protected:
 
 int main()
 {
-	srand(time(NULL));
 	minesweeper_clone game;
 	game.ConstructConsole(256,160, 5, 5);
 	game.Start();
