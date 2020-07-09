@@ -307,12 +307,12 @@ protected:
 		// Handle mouse input for selecting tiles
 		if (m_mouse[0].bReleased)
 			if (nSelectedTileX >= 0 && nSelectedTileX < nMapWidth)
-				if (nSelectedTileY >= nMapHeight / adjuster && nSelectedTileY < nMapHeight)
+				if (nSelectedTileY > nMapHeight / adjuster && nSelectedTileY < nMapHeight)
 					if (!(tiles[nSelectedTileY * nMapWidth + nSelectedTileX].bFlagged))
 					{
 						if (tiles[nSelectedTileY * nMapWidth + nSelectedTileX].mineNeighbors != 0)
 							tiles[nSelectedTileY * nMapWidth + nSelectedTileX].bRevealed = true;
-						else if (tiles[nSelectedTileY * nMapWidth + nSelectedTileX].bIsMine)
+						if (tiles[nSelectedTileY * nMapWidth + nSelectedTileX].bIsMine)
 						{
 							tiles[nSelectedTileY * nMapWidth + nSelectedTileX].bRevealed = true;
 							tiles[nSelectedTileY * nMapWidth + nSelectedTileX].bDetonated = true;
