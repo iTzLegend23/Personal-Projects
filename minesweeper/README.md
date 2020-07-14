@@ -27,9 +27,11 @@ liscence.
 * Compile and link the .cpp and .h files
     * Please note that the olcConsoleGameEngine.h requries the use of UNICODE character set, not the multi-byte character set
     * To use UNICODE, include the following:
+        ```c++
         #ifndef UNICODE
         #define UNICODE
         #endif
+        ```
 * Execute the file and enjoy
 
 
