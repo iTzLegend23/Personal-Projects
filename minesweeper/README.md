@@ -33,13 +33,13 @@ liscence.
 * Execute the file and enjoy
 
 
-###To Play:
+### To Play:
 * LMB: Reveals the current tile
 * RMB: Switches a tile between flagged as a mine or removes the flag
 
 
 
-###Current Notes:
+### Current Notes:
 * The game does not include a way to technically win or lose. You may uncover a tile that is a mine and the game will still play.
   Additionally, if you uncover all the tiles except the mines, the game will still go on. Exit the window to close the application.
 * There is only the one size for the screen. If things are too big or too small, in the .cpp source code at the bottom change this line:
