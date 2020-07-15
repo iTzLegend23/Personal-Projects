@@ -1,8 +1,8 @@
 # README -- Minesweeper
 
-This is a minesweeper clone written by David Waters. It is written in C++ and was created in a Windows environment.
+This is a minesweeper clone written by David Waters. It is written in C++ and created in a Windows environment.
 The proper suggestion is to use this on a Windows environment, but good luck to you if you wish to try and use it
-in Linux or OSX. The game engine olcConsoleGameEngine.h may not like those other environment, but you are free to
+in Linux or OSX. The game engine olcConsoleGameEngine.h may not like those other environments, but you are free to
 try and find out. This code is available as is and is used with full knowledge as such. Absolutely no harm or any
 such thing can be made out to the creator due to the use of this software. The user fully accepts and agrees to this
 statement by use of this software. As such, there are bound to be bugs in the code as this software is a work in
@@ -45,6 +45,8 @@ liscence.
 * The game does not include a way to technically win or lose. You may uncover a tile that is a mine and the game will still play.
   Additionally, if you uncover all the tiles except the mines, the game will still go on. Exit the window to close the application.
 * There is only the one size for the screen. If things are too big or too small, in the .cpp source code at the bottom change this line:
+    ```
     game.ConstructConsole(256, 160, 5, 5)
+    ```
 * The last two lines correspond to font size (width and height), so adjusting these numbers will help in resizing the window. If it
   is too big, I recommend changing the 5's to 3's.
