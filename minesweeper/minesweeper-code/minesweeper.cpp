@@ -65,10 +65,12 @@ private:
 
 	sText* text = nullptr;
 	sTile* tiles = nullptr;
-	int nMines = 40;
 	int nMapWidth = 32;			// Might want to handle any size here? (Dynamic)
 	int nMapHeight = 20;
-	int adjuster = 6;	// Used to change where to start keeping track in the y axis
+	int nMines = nMapWidth * (nMapHeight - 4) * 0.1;	// Use the decimal at the end to get integer percentage for number of mines
+	int adjuster = 6;			// Used to change where to start keeping track in the y axis
+	bool gameOver = false;		// Did the player lose the game, i.e. revealed a mine?
+	bool gameWon = false;		// Did the player win the game, i.e. opened all the safe tiles?
 
 	olcSprite* spriteCoveredTile = nullptr;
 	olcSprite* spriteRevealedTile = nullptr;
@@ -91,6 +93,12 @@ private:
 	olcSprite* spriteW = nullptr;
 	olcSprite* spriteP = nullptr;
 	olcSprite* spriteR = nullptr;
+	olcSprite* spriteG = nullptr;
+	olcSprite* spriteA = nullptr;
+	olcSprite* spriteO = nullptr;
+	olcSprite* spriteV = nullptr;
+	olcSprite* spriteY = nullptr;
+	olcSprite* spriteU = nullptr;
 
 protected:
 
@@ -118,6 +126,12 @@ protected:
 		spriteW = new olcSprite(L"assets/W.spr");
 		spriteP = new olcSprite(L"assets/P.spr");
 		spriteR = new olcSprite(L"assets/R.spr");
+		spriteG = new olcSprite(L"assets/G.spr");
+		spriteA = new olcSprite(L"assets/A.spr");
+		spriteO = new olcSprite(L"assets/O.spr");
+		spriteV = new olcSprite(L"assets/V.spr");
+		spriteY = new olcSprite(L"assets/Y.spr");
+		spriteU = new olcSprite(L"assets/U.spr");
 
 		// Create a "2D" array of tiles
 		tiles = new sTile[nMapWidth * nMapHeight];
@@ -141,6 +155,9 @@ protected:
 		text = new sText;
 		text->sPackage = L"REPEEWSENIM";	// MINESWEEPER spelled backwards
 		text->dSpeed = 4;
+
+		// Clear the screen to empty
+		Fill(0, 0, ScreenWidth(), ScreenHeight(), PIXEL_SOLID, FG_BLACK);
 
 		return true;
 	}
@@ -235,32 +252,94 @@ protected:
 			// Top left corner check
 			if (ypos - 1 >= 0 && xpos - 1 >= 0)
 				openNeighbors(tile, xpos - 1, ypos - 1);
-				//tile[(ypos - 1) * nMapWidth + (xpos - 1)].bRevealed = true;
 			// Top right corner check
 			if (ypos - 1 >= 0 && xpos + 1 < nMapWidth)
 				openNeighbors(tile, xpos + 1, ypos - 1);
-				//tile[(ypos - 1) * nMapWidth + (xpos + 1)].bRevealed = true;
 			// Bottom left corner check
 			if (ypos + 1 < nMapHeight && xpos - 1 >= 0)
 				openNeighbors(tile, xpos - 1, ypos + 1);
-				//tile[(ypos + 1) * nMapWidth + (xpos - 1)].bRevealed = true;
 			// Bottom right corner check
 			if (ypos + 1 < nMapHeight && xpos + 1 < nMapWidth)
 				openNeighbors(tile, xpos + 1, ypos + 1);
-				//tile[(ypos + 1) * nMapWidth + (xpos + 1)].bRevealed = true;
 		}
 		else
-		{
 			tile[ypos * nMapWidth + xpos].bRevealed = true;
-		}
 	}
 
-	void gameOver(int nTileSize)
+	void revealTiles()
 	{
 		for (int x = 0; x < nMapWidth; x++)
 			for (int y = 0; y < nMapHeight; y++)
 				if (tiles[y * nMapWidth + x].bIsMine)
 					tiles[y * nMapWidth + x].bRevealed = true;
+	}
+
+	bool checkGameWon()
+	{
+		int counter = 0;
+
+		for (int x = 0; x < nMapWidth; x++)
+			for (int y = nMapHeight / adjuster + 1; y < nMapHeight; y++)
+				if (tiles[y * nMapWidth + x].bRevealed)
+					counter++;
+
+		int total_tiles = nMapWidth * (nMapHeight - 4);
+
+		if ((total_tiles) - counter == nMines)
+			return true;
+		else return false;
+	}
+
+	// This function handles the end of the game, whether game won or game lost
+	// The first bool corresponds to the game state where the player lost the game
+	// The second bool corresponds to the game state where the play won the game
+	// If either are true, then do that action corresponding to the correct bool
+	void endGame(bool &gameOver, bool &gameWon)
+	{
+		if (gameOver)
+		{
+			text->sPackage = L"REVO EMAG";	// GAME OVER backwards
+		}
+		else	// gameWon
+		{
+			text->sPackage = L"NIW UOY";	// YOU WIN backwards
+		}
+
+		// Spell out pressing space resets the game
+		
+
+		// Reset the game state
+		if (m_keys[VK_SPACE].bReleased)
+		{
+			for (int x = 0; x < nMapWidth; x++)
+				for (int y = 0; y < nMapHeight; y++)
+				{
+					tiles[y * nMapWidth + x].xPosition = x;
+					tiles[y * nMapWidth + x].yPosition = y;
+					tiles[y * nMapWidth + x].bRevealed = false;
+					tiles[y * nMapWidth + x].bIsMine = false;
+					tiles[y * nMapWidth + x].bFlagged = false;
+					tiles[y * nMapWidth + x].bDetonated = false;
+					;
+				}
+
+			gameOver = false;
+			gameWon = false;
+
+			srand(time(NULL));
+			placeMines(tiles, nMapWidth * nMapHeight);
+
+			for (int x = 0; x < nMapWidth; x++)
+				for (int y = 0; y < nMapHeight; y++)
+					tiles[y * nMapWidth + x].mineNeighbors = checkNeighbors(x, y);
+
+			text->sPackage = L"REPEEWSENIM";	// MINESWEEPER spelled backwards
+			text->dSpeed = 4;
+
+			// Clear the screen to empty
+			Fill(0, 0, ScreenWidth(), ScreenHeight(), PIXEL_SOLID, FG_BLACK);
+		}
+
 	}
 
 	virtual bool OnUserUpdate(float fElapsedTime)
@@ -273,8 +352,8 @@ protected:
 		int nSelectedTileX = m_mousePosX / nTileSize;
 		int nSelectedTileY = m_mousePosY / nTileSize;
 
-		// First clear the screen to empty
-		Fill(0, 0, ScreenWidth(), ScreenHeight(), PIXEL_SOLID, FG_BLACK);
+		// Clear the top part of the screen to empty so scrolling MINESWEEPER text still looks fine
+		Fill(0, 0, ScreenWidth(), ScreenHeight() / adjuster, PIXEL_SOLID, FG_BLACK);
 
 		// Minesweeper text in the top circulating
 		text->dPosition += fElapsedTime * text->dSpeed;
@@ -299,13 +378,25 @@ protected:
 				DrawSprite((((int)text->dPosition - i) * nTileSize) % ScreenWidth(), ScreenHeight() / textAdjuster, spriteP);
 			else if (text->sPackage[i] == 'R')
 				DrawSprite((((int)text->dPosition - i) * nTileSize) % ScreenWidth(), ScreenHeight() / textAdjuster, spriteR);
+			else if (text->sPackage[i] == 'G')
+				DrawSprite((((int)text->dPosition - i) * nTileSize) % ScreenWidth(), ScreenHeight() / textAdjuster, spriteG);
+			else if (text->sPackage[i] == 'A')
+				DrawSprite((((int)text->dPosition - i) * nTileSize) % ScreenWidth(), ScreenHeight() / textAdjuster, spriteA);
+			else if (text->sPackage[i] == 'O')
+				DrawSprite((((int)text->dPosition - i) * nTileSize) % ScreenWidth(), ScreenHeight() / textAdjuster, spriteO);
+			else if (text->sPackage[i] == 'V')
+				DrawSprite((((int)text->dPosition - i) * nTileSize) % ScreenWidth(), ScreenHeight() / textAdjuster, spriteV);
+			else if (text->sPackage[i] == 'Y')
+				DrawSprite((((int)text->dPosition - i) * nTileSize) % ScreenWidth(), ScreenHeight() / textAdjuster, spriteY);
+			else if (text->sPackage[i] == 'U')
+				DrawSprite((((int)text->dPosition - i) * nTileSize) % ScreenWidth(), ScreenHeight() / textAdjuster, spriteU);
 		}
 
 		// Right here would go that extra "button" you are thinking about
 
 
 		// Handle mouse input for selecting tiles
-		if (m_mouse[0].bReleased)
+		if (m_mouse[0].bReleased && !(gameOver || gameWon))
 			if (nSelectedTileX >= 0 && nSelectedTileX < nMapWidth)
 				if (nSelectedTileY > nMapHeight / adjuster && nSelectedTileY < nMapHeight)
 					if (!(tiles[nSelectedTileY * nMapWidth + nSelectedTileX].bFlagged))
@@ -321,8 +412,8 @@ protected:
 							openNeighbors(tiles, nSelectedTileX, nSelectedTileY);
 					}
 
-		// Handle mouse input for flagging tiles -- needs help, won't change back to a covered tiles when hitting rmb again
-		if (m_mouse[1].bReleased)
+		// Handle mouse input for flagging tiles
+		if (m_mouse[1].bReleased && !(gameOver || gameWon))
 			if (nSelectedTileX >= 0 && nSelectedTileX < nMapWidth)
 				if (nSelectedTileY >= nMapHeight / adjuster && nSelectedTileY < nMapHeight)
 					tiles[nSelectedTileY * nMapWidth + nSelectedTileX].bFlagged = !tiles[nSelectedTileY * nMapWidth + nSelectedTileX].bFlagged;
@@ -333,9 +424,10 @@ protected:
 			{
 				if (tiles[y * nMapWidth + x].bRevealed)
 				{
-					if (tiles[y * nMapWidth + x].bIsMine)	// Right here, might want another helper function to handle game over case -- player selected a mine, gg
+					if (tiles[y * nMapWidth + x].bIsMine)
 					{
-						gameOver(nTileSize);
+						gameOver = true;
+						revealTiles();
 						if (tiles[y * nMapWidth + x].bDetonated)
 							DrawSprite(x * nTileSize, y * nTileSize, spriteTrippedMine);
 						else
@@ -362,7 +454,7 @@ protected:
 					else
 					{
 						cout << "This shouldn't have happened. . .\n";
-						break;
+						exit(-1);
 					}
 				}
 				else
@@ -377,14 +469,20 @@ protected:
 				}
 			}
 
+		gameWon = checkGameWon();
+
 		// A highlight feature for current tile the mouse is hovering over
-		if (m_mousePosX / nTileSize == nSelectedTileX && nSelectedTileX >= 0 && nSelectedTileX < nMapWidth)
+		if (m_mousePosX / nTileSize == nSelectedTileX && nSelectedTileX >= 0 && nSelectedTileX < nMapWidth && !(gameOver || gameWon))
 			if (m_mousePosY / nTileSize == nSelectedTileY && nSelectedTileY > nMapHeight / adjuster && nSelectedTileY < nMapHeight)
 			{
 				Fill(nSelectedTileX * nTileSize, nSelectedTileY * nTileSize,
 					(nSelectedTileX + 1) * nTileSize - nTileBorder, (nSelectedTileY + 1) * nTileSize - nTileBorder,
 					PIXEL_THREEQUARTERS, FG_WHITE);
 			}
+
+		if (gameOver || gameWon)
+			endGame(gameOver, gameWon);
+
 		return true;
 	}
 };
