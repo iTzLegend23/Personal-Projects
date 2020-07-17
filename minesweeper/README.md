@@ -1,5 +1,7 @@
 # README -- Minesweeper
 
+![Minesweeper Clone Snapshot](/minesweeper-assets/images/minesweeper_clone_snapshot.png " David's Minesweeper Clone Snapshot")
+
 This is a minesweeper clone written by David Waters. It is written in C++ and created in a Windows environment.
 The proper suggestion is to use this on a Windows environment, but good luck to you if you wish to try and use it
 in Linux or OSX. The game engine olcConsoleGameEngine.h may not like those other environments, but you are free to
