@@ -38,12 +38,13 @@ liscence.
 ### To Play:
 * LMB: Reveals the current tile
 * RMB: Switches a tile between flagged as a mine or removes the flag
-
+* SPACE: When game over or game won, press and release space to reset the game
 
 
 ### Current Notes:
-* The game does not include a way to technically win or lose. You may uncover a tile that is a mine and the game will still play.
-  Additionally, if you uncover all the tiles except the mines, the game will still go on. Exit the window to close the application.
+* The game can be won and lost. If either of these conditions are met, the text at the top of the screen will update accordingly and you
+will be unable to click on any more tiles.
+* If in a game over state or a game won state, press and release the space bar to reset the game to play again
 * There is only the one size for the screen. If things are too big or too small, in the .cpp source code at the bottom change this line:
     ```
     game.ConstructConsole(256, 160, 5, 5)
